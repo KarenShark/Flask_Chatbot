@@ -1,15 +1,15 @@
 from flask import Flask, request, jsonify
-import google.generativeai as genai
+import openai
 
-# Configure the Google Generative AI API Key
-genai.configure(api_key="AIzaSyC1Os4Y88njQVBIdMLxYRPMZumRzcTLXoY")
+# Configure OpenAI API key
+openai.api_key = "rPtlwp12ntqdsFjC1qYvhH10mYrCeqHcq2pgeUiqPdqNCddchhANf_7jcuZ0SB-2WifsrBfZA7T3BlbkFJC-eImN744_9NZac8mvAK2qbCdLkqYY1be-mjn54imN9UEhemDtaUg81xhLeCvkAY-b0PyiWMkA"
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
     """Home route to test server status."""
-    return "Welcome to the LLM Chatbox API!"
+    return "Welcome to the OpenAI Chatbox API!"
 
 @app.route("/generate", methods=["POST"])
 def generate():
@@ -21,12 +21,16 @@ def generate():
         return jsonify({"error": "Prompt is missing"}), 400
 
     try:
-        # Call Google Generative AI
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
-        return jsonify({"response": response.text})
+        # Call OpenAI's model
+        response = openai.Completion.create(
+            engine="text-davinci-003",  # You can use "gpt-3.5-turbo" or "gpt-4" for newer models
+            prompt=prompt,
+            max_tokens=150,
+            temperature=0.7,
+        )
+        return jsonify({"response": response["choices"][0]["text"].strip()})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000)  # Use port 5000
